@@ -52,7 +52,6 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
   };
 
   const { known, importer } = handleImporter(options);
-  console.log({ known, importer });
 
   let info: null | { file: string; test: string } = null;
 
@@ -73,13 +72,23 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
       for (const file of known) {
         state.currentSuite = file;
         await importer(file);
+        const method = known.length > 5 ? 'groupCollapsed' : 'group';
+        console[method](`Tests for ${file}`);
         let links = ``;
         for (const test of Object.keys(state.tests)) {
           if (test.startsWith(`${file} `)) {
             const title = test.split(' ').slice(1).join(' ');
-            links += `<a target="_blank" href="#${HASH}=${test}">${title}</a><br>`;
+            const href = `#${HASH}=${test}`;
+            links += `<a target="_blank" href="${href}">${title}</a><br>`;
+            console.log(
+              `%c${title}`,
+              'color: #fff; font-weight: bold',
+              new URL(href, location.href).toString(),
+            );
           }
         }
+        console.groupEnd();
+
         div.innerHTML += `
           <details style="cursor: pointer; padding: 8px; margin-left: 8px; background: black;">
             <summary>${file}</summary>

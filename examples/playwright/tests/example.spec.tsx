@@ -103,3 +103,12 @@ test('stub', async ({ render }) => {
   await page.click('text=Click me');
   expect(called1).toBe(1);
 });
+
+test.describe('extend', async () => {
+  test.use({ path: '/foo/bar' });
+  test('works', async ({ render }) => {
+    const { page } = await render();
+    await expect(page.getByText('Vite + React')).toBeVisible();
+    expect(page.url()).toBe('http://localhost:5173/foo/bar');
+  });
+});

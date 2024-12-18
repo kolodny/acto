@@ -24,9 +24,10 @@ export type Render<T = unknown> = (
 export type PlayType<T> = ReturnType<typeof connectPlaywright<T>>;
 
 export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
-  const test = playwrightTest.test.extend<{ render: Render<T> }>({
+  const test = playwrightTest.test.extend<{ render: Render<T>; path: string }>({
+    path: '/',
     render: [
-      async ({ page }, use, testInfo) => {
+      async ({ page, path }, use, testInfo) => {
         const { render, handleMessage } = connectTest({
           bootstrappedAt,
           getTestInfo: async () => {
@@ -36,7 +37,7 @@ export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
         });
 
         await page.exposeFunction(API_NAME, handleMessage);
-        await page.goto('/');
+        await page.goto(path);
 
         await use(async () => {
           const bridge = await render();
