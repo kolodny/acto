@@ -54,9 +54,13 @@ export const connectTest = ({ bootstrappedAt, getTestInfo }: Options) => {
     const rawBridge = (async (_browserValueCallback, runnerValueCallback) => {
       const browserValue = await browserValue$?.promise;
       browserValue$ = withResolvers();
-      const runnerValue = await runnerValueCallback(browserValue as never);
+      const runnerValue =
+        typeof runnerValueCallback === 'function'
+          ? (runnerValueCallback as any)(browserValue)
+          : runnerValueCallback;
+
       runnerValue$?.resolve(runnerValue);
-      return { browserValue, runnerValue };
+      return { browserValue, runnerValue, value: runnerValue };
     }) as Bridge;
 
     const bridge: Bridge = async (

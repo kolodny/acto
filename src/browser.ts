@@ -40,7 +40,7 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
         type: 'BRIDGE',
         browserValue,
       });
-      return { browserValue, runnerValue };
+      return { browserValue, runnerValue, value: browserValue };
     };
     rendered.bridge = async (browserValue: any) => {
       // We call this twice to ensure that the browser and runner are synced.

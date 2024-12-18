@@ -85,6 +85,16 @@ test('bridge', async ({ render }) => {
   await bridge(null, () => {});
 });
 
+test('bridge value', async ({ render }) => {
+  // await new Promise((res) => setTimeout(res, 3000));
+  const { page, bridge } = await render(<div>Test</div>);
+  await expect(page.getByText('Test')).toBeVisible();
+
+  const bridged = await bridge(1, 2);
+  console.log('bridged', bridged);
+  expect(bridged).toEqual({ browserValue: 1, runnerValue: 2, value: 2 });
+});
+
 test('stub', async ({ render }) => {
   const Component: React.FunctionComponent<{ handleClick: () => void }> = ({
     handleClick,
