@@ -34,7 +34,7 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     const rendered = await makeProxy();
     const rawBridge = async (browserValue: any) => {
       if (typeof browserValue === 'function') {
-        browserValue = browserValue();
+        browserValue = await browserValue();
       }
       const runnerValue = await callTestRunner({
         type: 'BRIDGE',

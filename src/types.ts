@@ -3,6 +3,8 @@ export type Payload =
   | { type: 'READY' }
   | { type: 'BRIDGE'; browserValue: unknown[] };
 
+type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
+
 /** Coordinate or pass a value from the browser to the node test runner. */
 export type Bridge = <BrowserValue, RunnerValue>(
   /** Browser value to pass to the node test runner. */
@@ -15,8 +17,8 @@ export type Bridge = <BrowserValue, RunnerValue>(
         browserValue: BrowserValue,
       ) => RunnerValue | Promise<RunnerValue>),
 ) => Promise<{
-  browserValue: BrowserValue;
-  runnerValue: RunnerValue;
+  browserValue: Awaited<BrowserValue>;
+  runnerValue: Awaited<RunnerValue>;
   /** BrowserValue in the browser, RunnerValue in the node test runner. */
-  value: BrowserValue | RunnerValue;
+  value: Awaited<BrowserValue> | Awaited<RunnerValue>;
 }>;

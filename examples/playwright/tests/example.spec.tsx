@@ -90,9 +90,51 @@ test('bridge value', async ({ render }) => {
   const { page, bridge } = await render(<div>Test</div>);
   await expect(page.getByText('Test')).toBeVisible();
 
-  const bridged = await bridge(1, 2);
+  const bridgedValue = await bridge('browserValue', 'runnerValue');
+  console.log('bridgedValue', bridgedValue);
+  expect(bridgedValue).toEqual({
+    browserValue: 'browserValue',
+    runnerValue: 'runnerValue',
+    value: 'runnerValue',
+  });
+
+  const bridgedFns = await bridge(
+    () => 'browserValue',
+    () => 'runnerValue',
+  );
+  console.log('bridgedFns', bridgedFns);
+  expect(bridgedFns).toEqual({
+    browserValue: 'browserValue',
+    runnerValue: 'runnerValue',
+    value: 'runnerValue',
+  });
+
+  const bridged = await bridge(
+    async () => 'browserValue',
+    async () => 'runnerValue',
+  );
   console.log('bridged', bridged);
-  expect(bridged).toEqual({ browserValue: 1, runnerValue: 2, value: 2 });
+  expect(bridged).toEqual({
+    browserValue: 'browserValue',
+    runnerValue: 'runnerValue',
+    value: 'runnerValue',
+  });
+
+  const bridged2 = await bridge(null, async () => 'runnerValue');
+  console.log('bridged2', bridged2);
+  expect(bridged2).toEqual({
+    browserValue: null,
+    runnerValue: 'runnerValue',
+    value: 'runnerValue',
+  });
+
+  const bridged3 = await bridge(async () => 'browserValue', null);
+  console.log('bridged3', bridged3);
+  expect(bridged3).toEqual({
+    browserValue: 'browserValue',
+    runnerValue: null,
+    value: null,
+  });
 });
 
 test('stub', async ({ render }) => {

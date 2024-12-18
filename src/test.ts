@@ -56,7 +56,7 @@ export const connectTest = ({ bootstrappedAt, getTestInfo }: Options) => {
       browserValue$ = withResolvers();
       const runnerValue =
         typeof runnerValueCallback === 'function'
-          ? (runnerValueCallback as any)(browserValue)
+          ? await (runnerValueCallback as any)(browserValue)
           : runnerValueCallback;
 
       runnerValue$?.resolve(runnerValue);
