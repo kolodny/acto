@@ -1,0 +1,83 @@
+{
+  "name": "acto",
+  "version": "0.0.0",
+  "description": "connector for browser based tests",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kolodny/acto"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Moshe Kolodny",
+    "email": "kolodny@github.com"
+  },
+  "exports": {
+    "./connect-node-test": {
+      "node": "./lib/connect-node-test-node.js",
+      "import": "./lib/connect-node-test-browser.mjs",
+      "browser": "./lib/connect-node-test-browser.js"
+    },
+    "./connect-playwright": {
+      "node": "./lib/connect-playwright-node.js",
+      "import": "./lib/connect-playwright-browser.mjs",
+      "browser": "./lib/connect-playwright-browser.js"
+    },
+    "./connect-cypress": {
+      "require": "./lib/connect-cypress.js",
+      "import": "./lib/connect-cypress.mjs"
+    },
+    "./connect-app": {
+      "require": "./lib/connect-app.js",
+      "import": "./lib/connect-app.mjs"
+    }
+  },
+  "main": "./lib/index.js",
+  "files": [
+    "lib/",
+    "package.json",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "format": "prettier .",
+    "lint": "eslint . --max-warnings 0",
+    "prepare": "husky",
+    "test": "(cd examples/playwright && npm run e2e) && (cd examples/cypress && npm run e2e) && (cd examples/node-test && npm run e2e) && (cd examples/svelte && npm run e2e) && (cd examples/vue && npm run e2e)",
+    "test:ci": "(cd examples/playwright && npm run e2e) && (cd examples/cypress && npm run e2e) && (cd examples/node-test && npm run e2e) && (cd examples/svelte && npm run e2e) && (cd examples/vue && npm run e2e)",
+    "tsc": "tsc"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
+  },
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.4.1",
+    "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.49.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.1",
+    "@vitest/coverage-v8": "^2.1.6",
+    "@vitest/eslint-plugin": "^1.1.12",
+    "console-fail-test": "^0.5.0",
+    "cspell": "^8.16.1",
+    "cypress": "^13.16.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-n": "^17.14.0",
+    "eslint-plugin-regexp": "^2.7.0",
+    "eslint-plugin-yml": "^1.15.0",
+    "husky": "^9.1.7",
+    "knip": "^5.38.2",
+    "lint-staged": "^15.2.10",
+    "mocha": "^11.0.1",
+    "prettier": "^3.4.1",
+    "prettier-plugin-curly": "^0.3.1",
+    "prettier-plugin-packagejson": "^2.5.6",
+    "prettier-plugin-sh": "^0.14.0",
+    "svelte": "^5.10.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.16.0",
+    "vitest": "^2.1.6"
+  }
+}

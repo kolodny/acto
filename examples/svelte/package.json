@@ -1,0 +1,29 @@
+{
+  "name": "svelte",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
+    "dev": "vite",
+    "e2e": "start-server-and-test dev http://localhost:5173 test",
+    "preview": "vite preview",
+    "test": "node --import tsx --test $(glob 'tests/**/*.{t,j}s')"
+  },
+  "dependencies": {
+    "acto": "file:../.."
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@tsconfig/svelte": "^5.0.4",
+    "playwright": "^1.49.1",
+    "start-server-and-test": "^2.0.8",
+    "svelte": "^5.2.7",
+    "svelte-check": "^4.1.0",
+    "tslib": "^2.8.1",
+    "tsx": "^4.19.2",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.1"
+  }
+}

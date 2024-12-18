@@ -1,0 +1,34 @@
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20.x']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build --if-present
+
+      - name: Install all dependencies for examples/* folders
+        run: |
+          for dir in examples/*; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Installing dependencies for $dir"
+              cd $dir
+              npm install
+              npm run install-deps --if-present
+              cd ../..
+            fi
+          done
+
+      - run: npm run test:ci
