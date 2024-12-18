@@ -6,6 +6,7 @@ import { state } from './browser';
 import { Bridge, Payload } from './types';
 import { connectTest } from './test';
 import { API_NAME } from './shared';
+import { RenderComponent } from './connect-app';
 
 type Rendered = {
   /**
@@ -22,12 +23,16 @@ type Rendered = {
    */
   bridge: Bridge;
 };
-type Render<T> = (component?: T) => Cypress.Chainable<Rendered>;
+type Render<T> = (
+  component?: RenderComponent<T>,
+) => Cypress.Chainable<Rendered>;
 type Connected<T> = typeof globalThis & { render: Render<T> };
 type Options = {
   /** location of client entry point that calls connect */
   bootstrappedAt: string;
 };
+
+export type { Bridge, Rendered, Options };
 
 export const connectCypress = <T>({
   bootstrappedAt,

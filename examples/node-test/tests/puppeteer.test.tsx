@@ -1,30 +1,29 @@
 import React from 'react';
 import sinon from 'sinon';
-import { type Page } from 'puppeteer';
 import { connectNodeTest } from 'acto/connect-node-test';
+import type { ElementType } from '../src/main';
+const bootstrappedAt = import.meta.resolve('../src/main'); // Should match last line
 
 const importPuppeteer = (): Promise<typeof import('puppeteer')> =>
   import(/* @vite-ignore */ `${'puppeteer'}`) as never;
 
-const { describe, it, test, render, assert } = connectNodeTest<
-  Page,
-  React.ReactNode
->({
-  bootstrappedAt: import.meta.resolve('../src/main.tsx'),
+const connectedRender = connectNodeTest(async (fnName, fn, cleanup) => {
+  const { launch } = await importPuppeteer();
+  const browser = await launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+
+  cleanup(() => browser.close());
+
+  const page = await browser.newPage();
+  await page.exposeFunction(fnName, fn);
+  await page.goto('http://localhost:5173/');
+  return page;
+});
+
+const { describe, it, test, render, assert } = connectedRender<ElementType>({
+  bootstrappedAt,
   testFile: import.meta.url,
-  getPage: async (fnName, fn, cleanup) => {
-    const { launch } = await importPuppeteer();
-    const browser = await launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-
-    cleanup(() => browser.close());
-
-    const page = await browser.newPage();
-    await page.exposeFunction(fnName, fn);
-    await page.goto('http://localhost:5173/');
-    return page;
-  },
 });
 
 describe('puppeteer tests', () => {
@@ -35,6 +34,11 @@ describe('puppeteer tests', () => {
 
   it('app test2', async () => {
     const { page } = await render();
+    await page.locator('text=Vite + React').wait();
+  });
+
+  it('app test wrap', async () => {
+    const { page } = await render((defaultElement) => defaultElement);
     await page.locator('text=Vite + React').wait();
   });
 

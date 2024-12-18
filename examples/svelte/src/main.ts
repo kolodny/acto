@@ -1,4 +1,4 @@
-import { mount } from 'svelte';
+import { mount, type Component } from 'svelte';
 import './app.css';
 import App from './App.svelte';
 
@@ -12,7 +12,9 @@ export const app = await connectApp({
     });
     return app;
   },
-  defaultElement: () => Promise.resolve(App),
+  defaultElement: async () => App as Component,
 });
+
+export type ElementType = NonNullable<typeof app>['ElementType'];
 
 export default app;

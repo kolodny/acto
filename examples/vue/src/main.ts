@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { ComponentOptionsMixin, createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
 
@@ -10,5 +10,7 @@ export const app = await connectApp({
     const app = createApp(await elem()).mount('#app');
     return app;
   },
-  defaultElement: () => Promise.resolve(App),
+  defaultElement: async () => App as ComponentOptionsMixin,
 });
+
+export type ElementType = NonNullable<typeof app>['ElementType'];

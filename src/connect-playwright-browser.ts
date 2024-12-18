@@ -1,9 +1,17 @@
 import { APPLY, makeProxy } from './proxy';
 import { state } from './browser';
 
-import type { Options, PlayType, Rendered } from './connect-playwright-node';
+import type {
+  Options,
+  PlayType,
+  Render,
+  Rendered,
+} from './connect-playwright-node';
 
-type Render = (component?: unknown) => Promise<Rendered>;
+import type { Bridge } from './types';
+
+export type { Bridge, Render, Rendered, Options };
+
 type PlaywrightBrowserCallbackArgs = { render: Render };
 
 type Callback = (arg: PlaywrightBrowserCallbackArgs) => Promise<Rendered>;

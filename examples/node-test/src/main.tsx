@@ -17,7 +17,7 @@ const resolveOnRender = (elem: JSX.Element) => {
   });
 };
 
-connectApp({
+export const app = connectApp({
   importGlob: import.meta.glob('../**/*.test.{j,t}s{,x}'),
   render: async (elem) => resolveOnRender(elem),
   defaultElement: (
@@ -26,3 +26,5 @@ connectApp({
     </StrictMode>
   ),
 });
+
+export type ElementType = NonNullable<Awaited<typeof app>>['ElementType'];

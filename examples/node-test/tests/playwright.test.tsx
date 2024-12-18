@@ -1,28 +1,27 @@
 import React from 'react';
 import sinon from 'sinon';
-import { type Page } from 'playwright';
 import { connectNodeTest } from 'acto/connect-node-test';
+import type { ElementType } from '../src/main';
+const bootstrappedAt = import.meta.resolve('../src/main'); // Should match last line
 
 const importPlaywright = (): Promise<typeof import('playwright')> =>
   import(/* @vite-ignore */ `${'playwright'}`) as never;
 
-const { describe, it, test, render, assert } = connectNodeTest<
-  Page,
-  React.ReactNode
->({
-  bootstrappedAt: import.meta.resolve('../src/main.tsx'),
+const connectedRender = connectNodeTest(async (fnName, fn, cleanup) => {
+  const { chromium } = await importPlaywright();
+  const browser = await chromium.launch();
+
+  cleanup(() => browser.close());
+
+  const page = await browser.newPage();
+  await page.exposeFunction(fnName, fn);
+  await page.goto('http://localhost:5173/');
+  return page;
+});
+
+const { describe, it, test, render, assert } = connectedRender<ElementType>({
+  bootstrappedAt,
   testFile: import.meta.url,
-  getPage: async (fnName, fn, cleanup) => {
-    const { chromium } = await importPlaywright();
-    const browser = await chromium.launch();
-
-    cleanup(() => browser.close());
-
-    const page = await browser.newPage();
-    await page.exposeFunction(fnName, fn);
-    await page.goto('http://localhost:5173/');
-    return page;
-  },
 });
 
 describe('playwright tests', () => {
@@ -33,6 +32,11 @@ describe('playwright tests', () => {
 
   it('app test2', async () => {
     const { page } = await render();
+    await page.getByText('Vite + React').waitFor();
+  });
+
+  it('app test wrap', async () => {
+    const { page } = await render((defaultElement) => defaultElement);
     await page.getByText('Vite + React').waitFor();
   });
 

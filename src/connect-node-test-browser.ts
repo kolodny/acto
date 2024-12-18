@@ -1,15 +1,21 @@
 import { APPLY, makeProxy } from './proxy';
 import { state } from './browser';
 
-import type { NodeTestType, Options } from './connect-node-test-node';
+import type {
+  Options,
+  Rendered,
+  connectNodeTest as nodeConnect,
+  NodeTestType,
+} from './connect-node-test-node';
 import { Bridge } from './types';
+import { RenderComponent } from './connect-app';
 
-export const connectNodeTest = <PageType, ComponentType = unknown>(
-  _options: Options<PageType>,
-): NodeTestType<PageType, ComponentType> => {
-  const nodeTest: NodeTestType<PageType, ComponentType> = makeProxy();
+export type { Bridge, Rendered, Options, NodeTestType };
 
-  const testRun: typeof nodeTest.it = async (...args) => {
+export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
+  const nodeTest = makeProxy();
+
+  const testRun: typeof nodeTest.it = async (...args: unknown[]) => {
     const name = args[0] as Extract<(typeof args)[0], string>;
     const opts = args[1] as Exclude<(typeof args)[0], string | Function>;
     const fn = args[2] as Extract<(typeof args)[0], Function>;
@@ -50,7 +56,7 @@ export const connectNodeTest = <PageType, ComponentType = unknown>(
   (describe.only as any)[APPLY] = describeRun;
 
   let bootstrap: (component: unknown) => Promise<{ bridge: Bridge }>;
-  const render = async (component?: ComponentType) => {
+  const render = async (component?: RenderComponent<unknown>) => {
     if (!bootstrap) {
       throw new Error('render can only be called inside a test');
     }

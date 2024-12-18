@@ -5,6 +5,7 @@ import { API_NAME } from './shared';
 
 import { connectTest } from './test';
 import { Bridge } from './types';
+import { RenderComponent } from './connect-app';
 
 export interface Rendered {
   page: Page;
@@ -16,12 +17,14 @@ export interface Options {
   bootstrappedAt: string;
 }
 
+export type Render<T = unknown> = (
+  component?: RenderComponent<T>,
+) => Promise<Rendered>;
+
 export type PlayType<T> = ReturnType<typeof connectPlaywright<T>>;
 
 export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
-  const test = playwrightTest.test.extend<{
-    render: (component?: T) => Promise<Rendered>;
-  }>({
+  const test = playwrightTest.test.extend<{ render: Render<T> }>({
     render: [
       async ({ page }, use, testInfo) => {
         const { render, handleMessage } = connectTest({

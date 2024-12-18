@@ -27,7 +27,9 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
   const { render, defaultElement, callTestRunner } = options;
 
   const bootstrap = async (component = defaultElement) => {
-    await render(component as never);
+    const isWrapper = typeof component === 'function' && component.length === 1;
+    const rendering = isWrapper ? await component(defaultElement) : component;
+    await render(rendering as never);
     await callTestRunner({ type: 'READY' });
     const rendered = await makeProxy();
     const rawBridge = async (browserValue: any) => {

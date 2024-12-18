@@ -3,7 +3,7 @@ import React from 'react';
 import { connectPlaywright } from 'acto/connect-playwright';
 import sinon from 'sinon';
 
-const { test, expect } = connectPlaywright({
+const { test, expect } = connectPlaywright<JSX.Element>({
   bootstrappedAt: import.meta.resolve('../src/main.tsx'),
 });
 
@@ -14,6 +14,11 @@ test('app test', async ({ render }) => {
 
 test('app test2', async ({ page, render }) => {
   await render();
+  await expect(page.getByText('Vite + React')).toBeVisible();
+});
+
+test('app test wrap', async ({ render }) => {
+  const { page } = await render((defaultElement) => defaultElement);
   await expect(page.getByText('Vite + React')).toBeVisible();
 });
 

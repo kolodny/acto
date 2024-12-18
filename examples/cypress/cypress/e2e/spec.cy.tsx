@@ -66,5 +66,11 @@ describe('template spec', () => {
 
       cy.contains('Vite + React').should('be.visible');
     });
+
+    it('wraps app', () => {
+      render((defaultElement) => defaultElement);
+
+      cy.contains('Vite + React').should('be.visible');
+    });
   });
 });
