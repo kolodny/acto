@@ -22,13 +22,14 @@ type Options<Rendered> = Importer & {
 };
 
 const HASH = '__acto__';
+export const BRIDGE_SYNC = {};
 
 export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
-  const { render, defaultElement, callTestRunner } = options;
+  const { render, defaultElement: app, callTestRunner } = options;
 
-  const bootstrap = async (component = defaultElement) => {
-    const isWrapper = typeof component === 'function' && component.length === 1;
-    const rendering = isWrapper ? await component(defaultElement) : component;
+  const bootstrap = async (component: unknown) => {
+    const isWrapper = typeof component === 'function';
+    const rendering = isWrapper ? await component(app) : component || app;
     await render(rendering as never);
     await callTestRunner({ type: 'READY' });
     const rendered = await makeProxy();
@@ -44,7 +45,7 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     };
     rendered.bridge = async (browserValue: any) => {
       // We call this twice to ensure that the browser and runner are synced.
-      await rawBridge(null);
+      await rawBridge(BRIDGE_SYNC);
       return rawBridge(browserValue);
     };
 
@@ -114,6 +115,6 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
 
     return { testInfo: info, bootstrap, test: state.tests[info.test] };
   } else {
-    return { defaultRender: await render(defaultElement as never) };
+    return { defaultRender: await render(app as never) };
   }
 };

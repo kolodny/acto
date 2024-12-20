@@ -29,14 +29,14 @@ describe('Svelte tests', () => {
   });
 
   it('tests app wrap', async () => {
-    const { page } = await render((defaultElement) => () => defaultElement());
+    const { page } = await render((app) => app);
     await page.getByText('Vite + Svelte').waitFor();
   });
 
   it('tests component', async () => {
     const Counter: ElementType = () =>
       import('../src/lib/Counter.svelte').then((m) => m.default);
-    const { page } = await render(Counter);
+    const { page } = await render(() => Counter);
     await page.getByText('count is 0').waitFor();
     await page.getByText('count is 0').click();
     await page.getByText('count is 1').waitFor();

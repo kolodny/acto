@@ -1,6 +1,6 @@
 {
   "name": "acto",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "connector for browser based tests",
   "repository": {
     "type": "git",

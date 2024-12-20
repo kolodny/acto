@@ -27,6 +27,11 @@ test('component test', async ({ render }) => {
   await expect(page.getByText('Custom')).toBeVisible();
 });
 
+test('component test fn', async ({ render }) => {
+  const { page } = await render(() => <div>Custom</div>);
+  await expect(page.getByText('Custom')).toBeVisible();
+});
+
 test('state', async ({ render }) => {
   const { page } = await render();
   await expect(page.getByText('count is 0')).toBeVisible();

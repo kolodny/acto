@@ -69,7 +69,7 @@ export const connectNodeTest =
   <ComponentType>({ bootstrappedAt, testFile }: Options) => {
     let bootstrap:
       | undefined
-      | ((component: unknown) => Promise<{ page: PageType; bridge: Bridge }>);
+      | ((component: unknown) => Promise<Rendered<PageType>>);
 
     const render = async (
       component?: RenderComponent<ComponentType>,
