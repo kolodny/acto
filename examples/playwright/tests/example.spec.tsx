@@ -70,9 +70,7 @@ test.describe('nested1', () => {
 test('bridge', async ({ render }) => {
   // await new Promise((res) => setTimeout(res, 3000));
   const { page, bridge } = await render(<div>Test</div>);
-  await new Promise((r) => setTimeout(r, 100));
   await expect(page.getByText('Test')).toBeVisible();
-  await new Promise((r) => setTimeout(r, 100));
 
   const bridged = await bridge(env, (app) => `${app} + ${env}`);
   expect(bridged).toEqual({
@@ -84,27 +82,23 @@ test('bridge', async ({ render }) => {
   const items = [isApp, isRunner];
   const bridged2 = await bridge([items], (app) => app.concat([items]));
   expect(bridged2).toEqual({
-    browserValue: [true, false],
-    runnerValue: [true, false, false, true],
-    value: [true, false, false, true],
+    browserValue: [[true, false]],
+    runnerValue: [
+      [true, false],
+      [false, true],
+    ],
+    value: [
+      [true, false],
+      [false, true],
+    ],
   });
 
-  const stuff = await bridge(null, () => typeof process);
-  await new Promise((r) => setTimeout(r, 100));
-
-  console.log({ stuff });
-
-  const stuff2 = await bridge({ b: typeof process }, (b) => ({ b }));
-  await new Promise((r) => setTimeout(r, 100));
-  const { runnerValue } = await bridge(null, () => `${process.env.PWDEBUG}`);
-  expect(runnerValue).toBe('true');
-  const fixed = await bridge(
-    () => ({ foo: window.location.href }),
-    (a) => a,
-  );
-  await new Promise((r) => setTimeout(r, 100));
-  console.log({ stuff2, fixed });
-  await bridge(null, () => {});
+  const type = await bridge(typeof process, typeof process);
+  expect(type).toEqual({
+    browserValue: 'undefined',
+    runnerValue: 'object',
+    value: 'object',
+  });
 });
 
 test('bridge value', async ({ render }) => {
