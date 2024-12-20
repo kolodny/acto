@@ -1,5 +1,5 @@
 import React from 'react';
-import { connectCypress } from 'acto/connect-cypress';
+import { connectCypress, env, isApp, isRunner } from 'acto/connect-cypress';
 
 const { render, describe, it, cy } = connectCypress<React.ReactNode>({
   bootstrappedAt: '../../src/main.tsx',
@@ -46,9 +46,16 @@ describe('template spec', () => {
       render(<div>bridge test</div>).then(async ({ bridge }) => {
         cy.contains('bridge test').should('be.visible');
 
-        const bridged = await bridge('app', (app) => `${app} + runner`);
+        const bridged = await bridge(env, (app) => `${app} + ${env}`);
         cy.wrap(bridged.browserValue).should('eq', 'app');
         cy.wrap(bridged.runnerValue).should('eq', 'app + runner');
+
+        const items = [isApp, isRunner];
+        const bridged2 = await bridge([items], (app) => app.concat([items]));
+        cy.wrap(bridged2.runnerValue).should('deep.equal', [
+          [true, false],
+          [false, true],
+        ]);
 
         const windows = await bridge(window, () => window);
         const sameWindow = windows.browserValue === windows.runnerValue;

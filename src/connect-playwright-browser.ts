@@ -52,3 +52,7 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
 
   return playTest;
 };
+
+export const env: 'runner' | 'app' = 'app';
+export const isRunner: boolean = false;
+export const isApp: boolean = true;

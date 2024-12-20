@@ -1,7 +1,7 @@
 export type Payload =
   | { type: 'INIT' }
   | { type: 'READY' }
-  | { type: 'BRIDGE'; browserValue: unknown[] };
+  | { type: 'BRIDGE'; browserValue: unknown };
 
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 

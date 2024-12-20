@@ -1,6 +1,11 @@
 import React from 'react';
 // import { test, expect } from '@playwright/test';
-import { connectPlaywright } from 'acto/connect-playwright';
+import {
+  connectPlaywright,
+  env,
+  isApp,
+  isRunner,
+} from 'acto/connect-playwright';
 import sinon from 'sinon';
 
 const { test, expect } = connectPlaywright<JSX.Element>({
@@ -69,6 +74,21 @@ test('bridge', async ({ render }) => {
   await expect(page.getByText('Test')).toBeVisible();
   await new Promise((r) => setTimeout(r, 100));
 
+  const bridged = await bridge(env, (app) => `${app} + ${env}`);
+  expect(bridged).toEqual({
+    browserValue: 'app',
+    runnerValue: 'app + runner',
+    value: 'app + runner',
+  });
+
+  const items = [isApp, isRunner];
+  const bridged2 = await bridge([items], (app) => app.concat([items]));
+  expect(bridged2).toEqual({
+    browserValue: [true, false],
+    runnerValue: [true, false, false, true],
+    value: [true, false, false, true],
+  });
+
   const stuff = await bridge(null, () => typeof process);
   await new Promise((r) => setTimeout(r, 100));
 
@@ -76,11 +96,8 @@ test('bridge', async ({ render }) => {
 
   const stuff2 = await bridge({ b: typeof process }, (b) => ({ b }));
   await new Promise((r) => setTimeout(r, 100));
-  const { runnerValue: env } = await bridge(
-    null,
-    () => `${process.env.PWDEBUG}`,
-  );
-  console.log({ env });
+  const { runnerValue } = await bridge(null, () => `${process.env.PWDEBUG}`);
+  expect(runnerValue).toBe('true');
   const fixed = await bridge(
     () => ({ foo: window.location.href }),
     (a) => a,

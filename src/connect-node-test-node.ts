@@ -148,3 +148,7 @@ export const connectNodeTest =
       test: it,
     };
   };
+
+export const env: 'runner' | 'app' = 'runner';
+export const isRunner: boolean = true;
+export const isApp: boolean = false;

@@ -34,10 +34,14 @@ type Options = {
 
 export type { Bridge, Rendered, Options };
 
+export const isApp = !(window as any).describe;
+export const isRunner = !isApp;
+export const env = isApp ? 'app' : 'runner';
+
 export const connectCypress = <T>({
   bootstrappedAt,
 }: Options): Connected<T> => {
-  if (!(window as any).describe) {
+  if (isApp) {
     let bootstrap: (component: unknown) => Promise<{ bridge: Bridge }>;
     const testRun = (name: string, callback: Function) => {
       const full = `${state.currentSuite} ${name}`;

@@ -68,3 +68,7 @@ export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
 
   return nodeTest;
 };
+
+export const env: 'runner' | 'app' = 'app';
+export const isRunner: boolean = false;
+export const isApp: boolean = true;

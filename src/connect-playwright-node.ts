@@ -48,7 +48,10 @@ export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
     ],
   });
 
-  type Connected = Omit<typeof playwrightTest, 'test'> & { test: typeof test };
-  const returns: Connected = { ...playwrightTest, test };
-  return returns;
+  const playwrightNoTest: Omit<typeof playwrightTest, 'test'> = playwrightTest;
+  return { ...playwrightNoTest, test };
 };
+
+export const env: 'runner' | 'app' = 'runner';
+export const isRunner: boolean = true;
+export const isApp: boolean = false;

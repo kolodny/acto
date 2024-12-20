@@ -9,7 +9,7 @@ type Options<ElementType, Rendered> = Importer & {
 };
 
 const LOCAL_RUNNER =
-  "Bridge function was called, however the there's no active test runner. You can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`";
+  "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`";
 
 export const connectApp = async <ElementType, Rendered>(
   options: Options<ElementType, Rendered>,
@@ -31,8 +31,13 @@ export const connectApp = async <ElementType, Rendered>(
           (window as any).bridge = async (runnerValue: (value: any) => any) => {
             delete (window as any).bridge;
             const isFn = typeof runnerValue === 'function';
-            const ran = isFn ? runnerValue(payload.browserValue) : runnerValue;
-            resolve(await ran);
+            const browserValue =
+              typeof payload.browserValue === 'function'
+                ? await payload.browserValue()
+                : payload.browserValue;
+            const ran = await (isFn ? runnerValue(browserValue) : runnerValue);
+            resolve(ran);
+            return { browserValue, runnerValue: ran, value: ran };
           };
         });
       }
