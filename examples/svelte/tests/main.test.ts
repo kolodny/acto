@@ -34,7 +34,7 @@ describe('Svelte tests', () => {
   });
 
   it('tests component', async () => {
-    const Counter: ElementType = () =>
+    const Counter = () =>
       import('../src/lib/Counter.svelte').then((m) => m.default);
     const { page } = await render(() => Counter);
     await page.getByText('count is 0').waitFor();

@@ -7,8 +7,14 @@ import { connectApp } from 'acto/connect-app';
 
 const root = createRoot(document.getElementById('root')!);
 
-connectApp({
+export const app = connectApp({
   importGlob: import.meta.glob('../**/*.cy.{j,t}s{,x}'),
   render: async (elem) => root.render(elem),
-  defaultElement: <App />,
+  defaultElement: (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  ),
 });
+
+export type ElementType = NonNullable<Awaited<typeof app>>['ElementType'];

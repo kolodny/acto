@@ -8,7 +8,9 @@ import {
 } from 'acto/connect-playwright';
 import sinon from 'sinon';
 
-const { test, expect } = connectPlaywright<JSX.Element>({
+import type { ElementType } from '../src/main';
+
+const { test, expect } = connectPlaywright<ElementType>({
   bootstrappedAt: import.meta.resolve('../src/main.tsx'),
 });
 

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, PropsWithChildren, StrictMode } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
@@ -7,24 +7,16 @@ import { connectApp, getTestInfo } from 'acto/connect-app';
 
 const root = createRoot(document.getElementById('root')!);
 
-const resolveOnRender = (elem: JSX.Element) => {
-  return new Promise<void>((res) => {
-    const Component: FunctionComponent<PropsWithChildren> = (props) => {
-      React.useEffect(res, []);
-      return <>{props.children}</>;
-    };
-    root.render(<Component>{elem}</Component>);
-  });
-};
-
 console.log('getTestInfo', await getTestInfo());
 
-connectApp({
+export const app = connectApp({
   importGlob: import.meta.glob('../**/*.spec.{j,t}s{,x}'),
-  render: async (elem: JSX.Element) => resolveOnRender(elem),
+  render: async (elem) => root.render(elem),
   defaultElement: (
-    <StrictMode>
+    <React.StrictMode>
       <App />
-    </StrictMode>
+    </React.StrictMode>
   ),
 });
+
+export type ElementType = NonNullable<Awaited<typeof app>>['ElementType'];

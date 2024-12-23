@@ -34,7 +34,7 @@ describe('Vue tests', () => {
   });
 
   it('tests component', async () => {
-    const Counter: ElementType = () =>
+    const Counter = () =>
       import('../src/components/HelloWorld.vue').then((m) => m.default);
     const { page } = await render(() => Counter);
     await page.getByText('count is 0').waitFor();

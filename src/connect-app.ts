@@ -2,7 +2,15 @@ import { API_NAME } from './shared';
 import { Importer } from './importer';
 import { connectBrowser, getTestInfo as baseGetTestInfo } from './browser';
 
-export type RenderComponent<T> = T | ((defaultElement: T) => T);
+export type RenderComponent<T> = T extends Function
+  ?
+      | ((defaultElement: T) => T)
+      | {
+          error: `You need to wrap the render in another function`;
+          Example1: 'change `await render(() => <div>)` to `await render(() => () => <div>)`';
+          Example2: 'change `await render(SvelteComponent)` to `await render(() => SvelteComponent)`';
+        }
+  : T | ((defaultElement: T) => T);
 type Options<ElementType, Rendered> = Importer & {
   render: (component: ElementType) => Promise<Rendered>;
   defaultElement: ElementType;
