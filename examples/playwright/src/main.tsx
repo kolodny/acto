@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 
-import { connectApp } from 'acto/connect-app';
+import { connectApp, getTestInfo } from 'acto/connect-app';
 
 const root = createRoot(document.getElementById('root')!);
 
@@ -16,6 +16,8 @@ const resolveOnRender = (elem: JSX.Element) => {
     root.render(<Component>{elem}</Component>);
   });
 };
+
+console.log('getTestInfo', await getTestInfo());
 
 connectApp({
   importGlob: import.meta.glob('../**/*.spec.{j,t}s{,x}'),

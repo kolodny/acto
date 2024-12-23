@@ -68,7 +68,7 @@ export const connectTest = ({ bootstrappedAt, getTestInfo }: Options) => {
       runnerValueCallback,
     ) => {
       // We call this twice to ensure that the browser and runner are synced.
-      await rawBridge(null, () => null);
+      await rawBridge(null, null);
       return rawBridge(browserValueCallback, runnerValueCallback);
     };
 
