@@ -113,10 +113,19 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
       browserValue = await getValue(await browserValue);
 
       if (!callTestRunner && browserValue !== BRIDGE_SYNC) {
-        console.info(
-          "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`. The actual pending runner value is (you can click this to go to source):",
-          passedRunnerValue,
-        );
+        const whenFn = (x: unknown) => typeof x === 'function' && x;
+        const anyFunction = whenFn(browserValue) || whenFn(passedRunnerValue);
+
+        const message =
+          "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`";
+        if (anyFunction) {
+          console.info(
+            `${message}. Waiting to resolve the following (you can click this to go to source):`,
+            passedRunnerValue,
+          );
+        } else {
+          console.log(message);
+        }
 
         return new Promise((resolve) => {
           (window as any).bridge = async (runnerValue: (value: any) => any) => {
