@@ -109,12 +109,12 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     await render(rendering as never);
     await callTestRunner?.({ type: 'READY' });
     const rendered = await makeProxy();
-    const rawBridge = async (browserValue: any, passedRunnerValue: any) => {
-      browserValue = await getValue(await browserValue);
+    const rawBridge = async (browserValueFn: any, passedRunnerValue: any) => {
+      const browserValue = await getValue(await browserValueFn);
 
       if (!callTestRunner && browserValue !== BRIDGE_SYNC) {
         const whenFn = (x: unknown) => typeof x === 'function' && x;
-        const anyFunction = whenFn(browserValue) || whenFn(passedRunnerValue);
+        const anyFunction = whenFn(browserValueFn) || whenFn(passedRunnerValue);
 
         const message =
           "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`";
