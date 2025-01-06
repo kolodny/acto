@@ -121,7 +121,7 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
         if (anyFunction) {
           console.info(
             `${message}. Waiting to resolve the following (you can click this to go to source):`,
-            passedRunnerValue,
+            anyFunction,
           );
         } else {
           console.log(message);
