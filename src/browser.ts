@@ -109,12 +109,13 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     await render(rendering as never);
     await callTestRunner?.({ type: 'READY' });
     const rendered = await makeProxy();
-    const rawBridge = async (browserValue: any) => {
+    const rawBridge = async (browserValue: any, passedRunnerValue: any) => {
       browserValue = await getValue(await browserValue);
 
       if (!callTestRunner && browserValue !== BRIDGE_SYNC) {
         console.info(
-          "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`",
+          "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`. The actual pending runner value is (you can click this to go to source):",
+          passedRunnerValue,
         );
 
         return new Promise((resolve) => {
@@ -135,10 +136,10 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
       });
       return { browserValue, runnerValue, value: browserValue };
     };
-    rendered.bridge = async (browserValue: any) => {
+    rendered.bridge = async (browserValue: any, passedRunnerValue: any) => {
       // We call this twice to ensure that the browser and runner are synced.
-      await rawBridge(BRIDGE_SYNC);
-      return await rawBridge(browserValue);
+      await rawBridge(BRIDGE_SYNC, null);
+      return await rawBridge(browserValue, passedRunnerValue);
     };
 
     return rendered;
