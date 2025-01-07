@@ -109,17 +109,28 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     await render(rendering as never);
     await callTestRunner?.({ type: 'READY' });
     const rendered = await makeProxy();
-    const rawBridge = async (browserValueFn: any, passedRunnerValue: any) => {
-      const browserValue = await getValue(await browserValueFn);
+    const rawBridge = async (browserValue: any) => {
+      browserValue = await getValue(await browserValue);
 
-      if (!callTestRunner && browserValue !== BRIDGE_SYNC) {
+      const runnerValue = await callTestRunner?.({
+        type: 'BRIDGE',
+        browserValue,
+      });
+      return { browserValue, runnerValue, value: browserValue };
+    };
+
+    rendered.bridge = async (browserValue: any, passedRunnerValue: any) => {
+      // We call this twice to ensure that the browser and runner are synced.
+      await rawBridge(BRIDGE_SYNC);
+
+      if (!callTestRunner) {
         const whenFn = (x: unknown) => typeof x === 'function' && x;
-        const anyFunction = whenFn(browserValueFn) || whenFn(passedRunnerValue);
+        const anyFunction = whenFn(browserValue) || whenFn(passedRunnerValue);
 
         const message =
           "Bridge function was called, however the there's no active test runner. You'll need to play the part of the test runner, you can manually call the bridge function. eg: `bridge(browserValue => browserValue.toUpperCase())`";
         if (anyFunction) {
-          console.info(
+          console.log(
             `${message}. Waiting to resolve the following (you can click this to go to source):`,
             anyFunction,
           );
@@ -131,24 +142,16 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
           (window as any).bridge = async (runnerValue: (value: any) => any) => {
             delete (window as any).bridge;
 
+            browserValue = await getValue(await browserValue);
             runnerValue = await getValue(runnerValue, browserValue);
 
-            resolve(runnerValue);
-            return { browserValue, runnerValue, value: runnerValue };
+            const returns = { browserValue, runnerValue, value: browserValue };
+            resolve(returns);
+            return returns;
           };
         });
       }
-
-      const runnerValue = await callTestRunner?.({
-        type: 'BRIDGE',
-        browserValue,
-      });
-      return { browserValue, runnerValue, value: browserValue };
-    };
-    rendered.bridge = async (browserValue: any, passedRunnerValue: any) => {
-      // We call this twice to ensure that the browser and runner are synced.
-      await rawBridge(BRIDGE_SYNC, null);
-      return await rawBridge(browserValue, passedRunnerValue);
+      return await rawBridge(browserValue);
     };
 
     return rendered;
