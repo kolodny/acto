@@ -29,6 +29,24 @@ test('app test wrap', async ({ render }) => {
   await expect(page.getByText('Vite + React')).toBeVisible();
 });
 
+test('app test wrap async', async ({ render }) => {
+  const rand = Math.random();
+  const { page, bridge } = await render(async (defaultElement) => {
+    const random = await new Promise<number>((res) =>
+      setTimeout(() => res(rand), 200),
+    );
+    return (
+      <>
+        {random}
+        {defaultElement}
+      </>
+    );
+  });
+  const { browserValue } = await bridge(rand, null);
+  await expect(page.getByText('Vite + React')).toBeVisible();
+  await expect(page.getByText(`${browserValue}`)).toBeVisible();
+});
+
 test('component test', async ({ render }) => {
   const { page } = await render(<div>Custom</div>);
   await expect(page.getByText('Custom')).toBeVisible();
