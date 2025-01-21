@@ -38,7 +38,7 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
   (test.skip as any)[APPLY] = testRun;
   (test.only as any)[APPLY] = testRun;
 
-  (test.extend as any)[APPLY] = test;
+  (test.extend as any)[APPLY] = () => test;
 
   const describe = test.describe;
   (describe as any)[APPLY] = describeRun;

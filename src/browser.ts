@@ -92,7 +92,9 @@ export const getTestInfo = (callTestRunner: CallTestRunner) => {
   }
 
   return (async () => {
-    return infoFromHash || (await callTestRunner?.({ type: 'INIT' })) || null;
+    return (
+      infoFromHash || ((await callTestRunner?.({ type: 'INIT' })) as never)
+    );
   })();
 };
 

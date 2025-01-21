@@ -15,6 +15,8 @@ export interface Rendered {
 export interface Options {
   /** location of client entry point that calls connectPlaywright */
   bootstrappedAt: string;
+  /** `@playwright/test` package. Useful when test is already extended */
+  playwright?: typeof playwrightTest;
 }
 
 export type Render<T = unknown> = (
@@ -23,8 +25,11 @@ export type Render<T = unknown> = (
 
 export type PlayType<T> = ReturnType<typeof connectPlaywright<T>>;
 
-export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
-  const test = playwrightTest.test.extend<{ render: Render<T>; path: string }>({
+export const connectPlaywright = <T>({
+  bootstrappedAt,
+  playwright = playwrightTest,
+}: Options) => {
+  const test = playwright.test.extend<{ render: Render<T>; path: string }>({
     path: '/',
     render: [
       async ({ page, path }, use, testInfo) => {
@@ -48,7 +53,7 @@ export const connectPlaywright = <T>({ bootstrappedAt }: Options) => {
     ],
   });
 
-  const playwrightNoTest: Omit<typeof playwrightTest, 'test'> = playwrightTest;
+  const playwrightNoTest: Omit<typeof playwright, 'test'> = playwright;
   return { ...playwrightNoTest, test };
 };
 
