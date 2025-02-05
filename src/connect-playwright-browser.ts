@@ -17,6 +17,10 @@ type PlaywrightBrowserCallbackArgs = { render: Render };
 type Callback = (arg: PlaywrightBrowserCallbackArgs) => Promise<Rendered>;
 
 export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
+  if (!state.connected) {
+    console.error(`You app is importing tests even when not under test!`);
+  }
+
   const playTest: PlayType<T> = makeProxy();
 
   const testRun = (name: string, callback: Callback) => {

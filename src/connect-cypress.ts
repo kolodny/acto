@@ -42,6 +42,10 @@ export const connectCypress = <T>({
   bootstrappedAt,
 }: Options): Connected<T> => {
   if (isApp) {
+    if (!state.connected) {
+      console.error(`You app is importing tests even when not under test!`);
+    }
+
     let bootstrap: (component: unknown) => Promise<{ bridge: Bridge }>;
     const testRun = (name: string, callback: Function) => {
       const full = `${state.currentSuite} ${name}`;

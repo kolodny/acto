@@ -13,6 +13,10 @@ import { RenderComponent } from './connect-app';
 export type { Bridge, Rendered, Options, NodeTestType };
 
 export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
+  if (!state.connected) {
+    console.error(`You app is importing tests even when not under test!`);
+  }
+
   const nodeTest = makeProxy();
 
   const testRun: typeof nodeTest.it = async (...args: unknown[]) => {

@@ -1,7 +1,9 @@
 import React from 'react';
 import { connectCypress, env, isApp, isRunner } from 'acto/connect-cypress';
 
-const { render, describe, it, cy } = connectCypress<React.ReactNode>({
+import type { ElementType } from '../../src/main';
+
+const { render, describe, it, cy } = connectCypress<ElementType>({
   bootstrappedAt: '../../src/main.tsx',
 });
 

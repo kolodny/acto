@@ -9,6 +9,8 @@ export type Test<T> = (testParams: TestParam<T>) => Promise<T>;
 type Tests<T> = Record<string, Test<T>>;
 
 interface State<T> {
+  connected?: boolean;
+  rendered?: any;
   tests: Tests<T>;
   currentSuite: string;
 }
@@ -22,17 +24,41 @@ type Options<Rendered> = Importer & {
   callTestRunner: undefined | CallTestRunner;
 };
 
+type ImporterHandler = ReturnType<typeof handleImporter>;
+
 const HASH = '__acto__';
 const BRIDGE_SYNC = {};
 
-const showDebugInfo = async (
-  importerHandler: ReturnType<typeof handleImporter>,
-) => {
+type TestsInfo = Record<string, Array<{ href: string; title: string }>>;
+const makeGetTestsInfo =
+  (importerHandler: ImporterHandler) =>
+  async (matcher?: (file: string) => boolean) => {
+    const { known, importer } = importerHandler;
+    const testsInfo: TestsInfo = {};
+    for (const file of known) {
+      if (matcher && !matcher(file)) {
+        continue;
+      }
+      state.currentSuite = file;
+      testsInfo[file] ??= [];
+      await importer(file);
+      let links = ``;
+      for (const test of Object.keys(state.tests)) {
+        if (test.startsWith(`${file} `)) {
+          const title = test.split(' ').slice(1).join(' ');
+          const href = `#${HASH}=${test}`;
+          testsInfo[file].push({ title, href });
+        }
+      }
+    }
+    return testsInfo;
+  };
+
+const showDebugInfo = (testsInfo: TestsInfo) => {
   if (typeof document === 'undefined') {
     return;
   }
 
-  const { known, importer } = importerHandler;
   const div = document.createElement('div');
   div.style.cssText = `
         position: fixed;
@@ -43,23 +69,19 @@ const showDebugInfo = async (
         gap: 8px;
         z-index: 9999;
       `;
-  for (const file of known) {
+  for (const [file, tests] of Object.entries(testsInfo)) {
     state.currentSuite = file;
-    await importer(file);
-    const method = known.length > 5 ? 'groupCollapsed' : 'group';
+    const method =
+      Object.keys(testsInfo).length > 5 ? 'groupCollapsed' : 'group';
     console[method](`Tests for ${file}`);
     let links = ``;
-    for (const test of Object.keys(state.tests)) {
-      if (test.startsWith(`${file} `)) {
-        const title = test.split(' ').slice(1).join(' ');
-        const href = `#${HASH}=${test}`;
-        links += `<a target="_blank" href="${href}">${title}</a><br>`;
-        console.log(
-          `%c${title}`,
-          'color: #fff; font-weight: bold',
-          new URL(href, location.href).toString(),
-        );
-      }
+    for (const { title, href } of tests) {
+      links += `<a target="_blank" href="${href}">${title}</a><br>`;
+      console.log(
+        `%c${title}`,
+        'color: #fff; font-weight: bold',
+        new URL(href, location.href).toString(),
+      );
     }
     console.groupEnd();
 
@@ -98,7 +120,7 @@ export const getTestInfo = (callTestRunner: CallTestRunner) => {
   })();
 };
 
-export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
+export const connectBrowser = <Rendered>(options: Options<Rendered>) => {
   const { render, defaultElement: app, callTestRunner } = options;
 
   const getValue = (o: unknown, arg?: unknown) => {
@@ -108,7 +130,7 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
   const bootstrap = async (component: unknown) => {
     const isWrapper = typeof component === 'function';
     const rendering = isWrapper ? component(app) : component || app;
-    await render((await rendering) as never);
+    state.rendered = await render((await rendering) as never);
     await callTestRunner?.({ type: 'READY' });
     const rendered = await makeProxy();
     const rawBridge = async (browserValue: any) => {
@@ -159,29 +181,36 @@ export const connectBrowser = async <Rendered>(options: Options<Rendered>) => {
     return rendered;
   };
 
-  const { known, importer } = handleImporter(options);
+  const importAdapter = handleImporter(options);
 
   let info: null | { file: string; test: string } = null;
 
-  const hash = typeof location !== 'undefined' ? location.hash : '';
-  if (hash.includes(HASH)) {
-    if (!hash.includes(`${HASH}=`)) {
-      // HASH is just #__acto__
-      await showDebugInfo({ known, importer });
-    } else {
-      // HASH is #__acto__=testName
-      info = getInfoFromHash();
+  const getTestsInfo = makeGetTestsInfo(importAdapter);
+
+  const connect = async () => {
+    const hash = typeof location !== 'undefined' ? location.hash : '';
+    if (hash.includes(HASH)) {
+      if (!hash.includes(`${HASH}=`)) {
+        // HASH is just #__acto__
+        const testsInfo = await getTestsInfo();
+        showDebugInfo(testsInfo);
+      } else {
+        // HASH is #__acto__=testName
+        info = getInfoFromHash();
+      }
     }
-  }
 
-  info ||= await callTestRunner?.({ type: 'INIT' });
+    info ||= await callTestRunner?.({ type: 'INIT' });
 
-  if (info && importer) {
-    state.currentSuite = info.file;
-    await importer(info.file);
+    if (info && importAdapter) {
+      state.currentSuite = info.file;
+      await importAdapter.importer(info.file);
 
-    return { testInfo: info, bootstrap, test: state.tests[info.test] };
-  } else {
-    return { defaultRender: await render(app as never) };
-  }
+      return { testInfo: info, bootstrap, test: state.tests[info.test] };
+    } else {
+      return { defaultRender: await render(app as never) };
+    }
+  };
+
+  return { connected: connect(), getTestsInfo };
 };

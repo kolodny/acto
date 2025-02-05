@@ -3,6 +3,7 @@
 
 // @ts-ignore
 import type { ImportGlobFunction } from 'vite';
+import { state } from './browser';
 
 export type Importer =
   // @ts-ignore
@@ -12,6 +13,7 @@ export type Importer =
   | { imports: false | Record<string, () => Promise<unknown>> };
 
 export const handleImporter = (options: Importer) => {
+  state.connected = true;
   let known: string[] = [];
   let importer: (s: string) => unknown = () => {};
   if ('webpackContext' in options && options.webpackContext !== false) {

@@ -3,13 +3,11 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 
-import { connectApp, getTestInfo } from 'acto/connect-app';
+import { connectApp } from 'acto/connect-app';
 
 const root = createRoot(document.getElementById('root')!);
 
-console.log('getTestInfo', await getTestInfo());
-
-export const app = connectApp({
+export const connected = connectApp({
   importGlob: import.meta.glob('../**/*.spec.{j,t}s{,x}'),
   render: async (elem) => root.render(elem),
   defaultElement: (
@@ -19,4 +17,4 @@ export const app = connectApp({
   ),
 });
 
-export type ElementType = NonNullable<Awaited<typeof app>>['ElementType'];
+export type ElementType = Awaited<typeof connected>['ElementType'];

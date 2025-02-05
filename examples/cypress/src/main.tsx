@@ -7,7 +7,7 @@ import { connectApp } from 'acto/connect-app';
 
 const root = createRoot(document.getElementById('root')!);
 
-export const app = connectApp({
+export const connected = connectApp({
   importGlob: import.meta.glob('../**/*.cy.{j,t}s{,x}'),
   render: async (elem) => root.render(elem),
   defaultElement: (
@@ -17,4 +17,4 @@ export const app = connectApp({
   ),
 });
 
-export type ElementType = NonNullable<Awaited<typeof app>>['ElementType'];
+export type ElementType = Awaited<typeof connected>['ElementType'];
