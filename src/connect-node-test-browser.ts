@@ -17,6 +17,7 @@ export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
     console.error(`You app is importing tests even when not under test!`);
   }
 
+  const file = state.currentFile;
   const nodeTest = makeProxy();
 
   const testRun: typeof nodeTest.it = async (...args: unknown[]) => {
@@ -25,7 +26,7 @@ export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
     const fn = args[2] as Extract<(typeof args)[0], Function>;
     const callback = typeof opts === 'function' ? opts : fn;
 
-    const full = `${state.currentSuite} ${name}`;
+    const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
     const inject = makeProxy();
     state.tests[full] = async (options) => {
       bootstrap = options.bootstrap;
@@ -40,7 +41,7 @@ export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
 
   const describeRun = (name: string, callback: Function) => {
     const lastSuite = state.currentSuite;
-    state.currentSuite += ` ${name}`;
+    state.currentSuite = [state.currentSuite, name].filter(Boolean).join(' ');
     callback();
     state.currentSuite = lastSuite;
   };

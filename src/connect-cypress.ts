@@ -46,9 +46,11 @@ export const connectCypress = <T>({
       console.error(`You app is importing tests even when not under test!`);
     }
 
+    const file = state.currentFile;
+
     let bootstrap: (component: unknown) => Promise<{ bridge: Bridge }>;
     const testRun = (name: string, callback: Function) => {
-      const full = `${state.currentSuite} ${name}`;
+      const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
       state.tests[full] = async (options) => {
         bootstrap = options.bootstrap;
         callback();
@@ -56,7 +58,7 @@ export const connectCypress = <T>({
     };
     const describeRun = (name: string, callback: Function) => {
       const lastSuite = state.currentSuite;
-      state.currentSuite += ` ${name}`;
+      state.currentSuite = [state.currentSuite, name].filter(Boolean).join(' ');
       callback();
       state.currentSuite = lastSuite;
     };
