@@ -1,6 +1,6 @@
 {
   "name": "acto",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "connector for browser based tests",
   "repository": {
     "type": "git",
@@ -36,6 +36,22 @@
     }
   },
   "main": "./lib/index.js",
+  "typesVersions": {
+    "*": {
+      "connect-app": [
+        "./lib/connect-app.d.ts"
+      ],
+      "connect-cypress": [
+        "./lib/connect-cypress.d.ts"
+      ],
+      "connect-node-test": [
+        "./lib/connect-node-test-browser.d.ts"
+      ],
+      "connect-playwright": [
+        "./lib/connect-playwright-browser.d.ts"
+      ]
+    }
+  },
   "files": [
     "lib/",
     "package.json",
