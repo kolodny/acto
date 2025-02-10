@@ -13,20 +13,24 @@
   },
   "exports": {
     "./connect-node-test": {
+      "types": "./lib/connect-node-test-browser.d.ts",
       "node": "./lib/connect-node-test-node.js",
       "import": "./lib/connect-node-test-browser.mjs",
       "browser": "./lib/connect-node-test-browser.js"
     },
     "./connect-playwright": {
+      "types": "./lib/connect-playwright-browser.d.ts",
       "node": "./lib/connect-playwright-node.js",
       "import": "./lib/connect-playwright-browser.mjs",
       "browser": "./lib/connect-playwright-browser.js"
     },
     "./connect-cypress": {
+      "types": "./lib/connect-cypress.d.ts",
       "require": "./lib/connect-cypress.js",
       "import": "./lib/connect-cypress.mjs"
     },
     "./connect-app": {
+      "types": "./lib/connect-app.d.ts",
       "require": "./lib/connect-app.js",
       "import": "./lib/connect-app.mjs"
     }

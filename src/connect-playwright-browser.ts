@@ -30,7 +30,7 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
   };
   const describeRun = (name: string, callback: Function) => {
     const lastSuite = state.currentSuite;
-    state.currentSuite += [state.currentSuite, name].filter(Boolean).join(' ');
+    state.currentSuite = [state.currentSuite, name].filter(Boolean).join(' ');
     callback();
     state.currentSuite = lastSuite;
   };
