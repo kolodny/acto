@@ -10,9 +10,11 @@ import sinon from 'sinon';
 
 import type { ElementType } from '../src/main';
 
-const { test, expect } = connectPlaywright<ElementType>({
+await new Promise((r) => setTimeout(r, 1000));
+const { test, expect } = await connectPlaywright<ElementType>({
   bootstrappedAt: import.meta.resolve('../src/main.tsx'),
 });
+await new Promise((r) => setTimeout(r, 1000));
 
 test('app test', async ({ render }) => {
   const { page } = await render();
