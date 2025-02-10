@@ -1,4 +1,5 @@
 import { handleImporter, Importer } from './importer';
+import { PromiseWithResolvers, withResolvers } from './promise-resolvers';
 import { makeProxy } from './proxy';
 import type { Payload } from './types';
 
@@ -13,9 +14,15 @@ interface State<T> {
   rendered?: any;
   tests: Tests<T>;
   currentSuite: string;
+  currentFile: string;
+  loadingFile?: PromiseWithResolvers<unknown>;
 }
 
-export const state: State<any> = { tests: {}, currentSuite: '' };
+export const state: State<any> = {
+  tests: {},
+  currentSuite: '',
+  currentFile: '',
+};
 
 type CallTestRunner = (payload: Payload) => Promise<any>;
 type Options<Rendered> = Importer & {
@@ -29,20 +36,26 @@ type ImporterHandler = ReturnType<typeof handleImporter>;
 const HASH = '__acto__';
 const BRIDGE_SYNC = {};
 
+const prefix = (s: string) => (s.startsWith('.') ? s : `./${s}`);
+
 type TestsInfo = Record<string, Array<{ href: string; title: string }>>;
 const makeGetTestsInfo =
   (importerHandler: ImporterHandler) =>
   async (matcher?: (file: string) => boolean) => {
-    const { known, importer } = importerHandler;
     const testsInfo: TestsInfo = {};
-    for (const file of known) {
+    for (const file of importerHandler.known) {
       if (matcher && !matcher(file)) {
         continue;
       }
-      state.currentSuite = file;
+      if (state.loadingFile?.promise) {
+        await state.loadingFile?.promise;
+      }
+      state.loadingFile = withResolvers();
+      state.currentFile = file;
       testsInfo[file] ??= [];
-      await importer(file);
-      let links = ``;
+      await importerHandler.importer(prefix(file));
+      state.loadingFile.resolve(null);
+      state.loadingFile = undefined;
       for (const test of Object.keys(state.tests)) {
         if (test.startsWith(`${file} `)) {
           const title = test.split(' ').slice(1).join(' ');
@@ -70,7 +83,6 @@ const showDebugInfo = (testsInfo: TestsInfo) => {
         z-index: 9999;
       `;
   for (const [file, tests] of Object.entries(testsInfo)) {
-    state.currentSuite = file;
     const method =
       Object.keys(testsInfo).length > 5 ? 'groupCollapsed' : 'group';
     console[method](`Tests for ${file}`);
@@ -181,11 +193,11 @@ export const connectBrowser = <Rendered>(options: Options<Rendered>) => {
     return rendered;
   };
 
-  const importAdapter = handleImporter(options);
+  const importHandler = handleImporter(options);
 
   let info: null | { file: string; test: string } = null;
 
-  const getTestsInfo = makeGetTestsInfo(importAdapter);
+  const getTestsInfo = makeGetTestsInfo(importHandler);
 
   const connect = async () => {
     const hash = typeof location !== 'undefined' ? location.hash : '';
@@ -202,9 +214,15 @@ export const connectBrowser = <Rendered>(options: Options<Rendered>) => {
 
     info ||= await callTestRunner?.({ type: 'INIT' });
 
-    if (info && importAdapter) {
-      state.currentSuite = info.file;
-      await importAdapter.importer(info.file);
+    if (info && importHandler) {
+      if (state.loadingFile?.promise) {
+        await state.loadingFile?.promise;
+      }
+      state.loadingFile = withResolvers();
+      state.currentFile = info.file;
+      await importHandler.importer(prefix(info.file));
+      state.loadingFile.resolve(null);
+      state.loadingFile = undefined;
 
       return { testInfo: info, bootstrap, test: state.tests[info.test] };
     } else {

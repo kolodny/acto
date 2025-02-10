@@ -21,15 +21,16 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
     console.error(`You app is importing tests even when not under test!`);
   }
 
+  const file = state.currentFile;
   const playTest: PlayType<T> = makeProxy();
 
   const testRun = (name: string, callback: Callback) => {
-    const full = `${state.currentSuite} ${name}`;
+    const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
     state.tests[full] = (options) => callback({ render: options.bootstrap });
   };
   const describeRun = (name: string, callback: Function) => {
     const lastSuite = state.currentSuite;
-    state.currentSuite += ` ${name}`;
+    state.currentSuite += [state.currentSuite, name].filter(Boolean).join(' ');
     callback();
     state.currentSuite = lastSuite;
   };
@@ -53,6 +54,15 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
   (describe.parallel.only as any)[APPLY] = describeRun;
   (describe.serial as any)[APPLY] = describeRun;
   (describe.serial.only as any)[APPLY] = describeRun;
+
+  // Handle case of: const { test, expect } = await connectPlaywright();
+  const playTestAny = playTest as any;
+  playTestAny.then = (resolve: any) => {
+    const then = playTestAny.then;
+    playTestAny.then = undefined;
+    resolve(playTest);
+    playTestAny.then = then;
+  };
 
   return playTest;
 };
