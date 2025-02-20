@@ -62,7 +62,7 @@ The test connectors are available for:
   - Take a look at the [examples](./examples/node-test/tests/) to see how `connectNodeTest` is wired up for `puppeteer` or `playwright`.
 
 <details>
-<summary>Using <code>playwright/test</code></summary>
+<summary>Using <code>@playwright/test</code></summary>
 
 ```ts
 // tests/playwright.spec.tsx
@@ -122,3 +122,29 @@ describe('my tests', () => {
 - See example that uses [`puppeteer`](./examples/node-test/tests/puppeteer.test.tsx)
 
 </details>
+
+## Register Hook
+
+Sometimes you can have some UI code that won't be able to run in the NodeJS environment. In that case, you can import the `acto/register` hook in your test runner. This will patch the imports with dummy values within NodeJS. For example, if the component file has a line like:  
+`const API = window.location.hostname.includes === 'test' ? 'test' : 'prod'` this will fail since `window` isn't defined in Node. By importing the `acto/register` hook, this code will be able to run in Node.
+
+### Using `@playwright/test`:
+
+```ts
+// playwright.config.ts
+import 'acto/register';
+import { defineConfig, devices } from '@playwright/test';
+```
+
+### Using `Node Test Runner` change your `package.json` to include the following:
+
+```json
+{
+  "scripts": {
+    "old-test": "node --import tsx --test $(glob 'tests/**/*.tsx')",
+    "new-test": "node --import tsx --import acto/register --test $(glob 'tests/**/*.tsx')"
+  }
+}
+```
+
+Make sure that `--import acto/register` comes after `--import tsx` for best results.
