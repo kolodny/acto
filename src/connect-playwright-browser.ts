@@ -26,16 +26,26 @@ export const connectPlaywright = <T>(_options: Options): PlayType<T> => {
 
   const testRun = (name: string, callback: Callback) => {
     const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
-    state.tests[full] = (options) => callback({ render: options.bootstrap });
+    state.tests[full] = {
+      fn: (options) => callback({ render: options.bootstrap }),
+      config: state.config,
+    };
   };
   const describeRun = (name: string, callback: Function) => {
     const lastSuite = state.currentSuite;
+    const lastConfig = state.config;
+
     state.currentSuite = [state.currentSuite, name].filter(Boolean).join(' ');
     callback();
+
     state.currentSuite = lastSuite;
+    state.config = lastConfig;
   };
 
   const test = playTest.test;
+  test.use = (config) => {
+    state.config = { ...state.config, ...config };
+  };
 
   (test as any)[APPLY] = testRun;
   (test.fail as any)[APPLY] = testRun;

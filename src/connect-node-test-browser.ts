@@ -28,9 +28,12 @@ export const connectNodeTest: typeof nodeConnect = (_render) => (_options) => {
 
     const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
     const inject = makeProxy();
-    state.tests[full] = async (options) => {
-      bootstrap = options.bootstrap;
-      return callback?.(inject, inject);
+    state.tests[full] = {
+      config: state.config,
+      fn: async (options) => {
+        bootstrap = options.bootstrap;
+        return callback?.(inject, inject);
+      },
     };
   };
   if (false) {

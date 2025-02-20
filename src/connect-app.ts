@@ -35,7 +35,7 @@ export const connectApp = <ElementType, Rendered>(
   const connect = async () => {
     const { test, testInfo, bootstrap, defaultRender } = await connected;
     if (testInfo) {
-      await test?.({ bootstrap });
+      await test?.fn({ bootstrap });
       const rendered = state.rendered as Awaited<Rendered>;
       return { rendered, testInfo, getTestInfo };
     } else {

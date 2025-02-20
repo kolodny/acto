@@ -7,12 +7,13 @@ export type Bootstrap<T> = (component?: unknown) => Promise<T>;
 
 export type TestParam<T> = { bootstrap: Bootstrap<T> };
 export type Test<T> = (testParams: TestParam<T>) => Promise<T>;
-type Tests<T> = Record<string, Test<T>>;
+type Tests<T> = Record<string, { config: Record<string, any>; fn: Test<T> }>;
 
 interface State<T> {
   connected?: boolean;
   rendered?: any;
   tests: Tests<T>;
+  config: Record<string, any>;
   currentSuite: string;
   currentFile: string;
   loadingFile?: PromiseWithResolvers<unknown>;
@@ -20,6 +21,7 @@ interface State<T> {
 
 export const state: State<any> = {
   tests: {},
+  config: {},
   currentSuite: '',
   currentFile: '',
 };
@@ -38,7 +40,10 @@ const BRIDGE_SYNC = {};
 
 const prefix = (s: string) => (s.startsWith('.') ? s : `./${s}`);
 
-type TestsInfo = Record<string, Array<{ href: string; title: string }>>;
+type TestsInfo = Record<
+  string,
+  Array<{ href: string; title: string; config: Record<string, any> }>
+>;
 const makeGetTestsInfo =
   (importerHandler: ImporterHandler) =>
   async (matcher?: (file: string) => boolean) => {
@@ -56,11 +61,11 @@ const makeGetTestsInfo =
       await importerHandler.importer(prefix(file));
       state.loadingFile.resolve(null);
       state.loadingFile = undefined;
-      for (const test of Object.keys(state.tests)) {
+      for (const [test, info] of Object.entries(state.tests)) {
         if (test.startsWith(`${file} `)) {
           const title = test.split(' ').slice(1).join(' ');
           const href = `#${HASH}=${test}`;
-          testsInfo[file].push({ title, href });
+          testsInfo[file].push({ title, href, config: info.config });
         }
       }
     }
@@ -87,13 +92,12 @@ const showDebugInfo = (testsInfo: TestsInfo) => {
       Object.keys(testsInfo).length > 5 ? 'groupCollapsed' : 'group';
     console[method](`Tests for ${file}`);
     let links = ``;
-    for (const { title, href } of tests) {
-      links += `<a target="_blank" href="${href}">${title}</a><br>`;
-      console.log(
-        `%c${title}`,
-        'color: #fff; font-weight: bold',
-        new URL(href, location.href).toString(),
-      );
+    for (const { title, href, config } of tests) {
+      const base = 'path' in config ? config.path : location.pathname;
+      const abs = new URL(href, new URL(base, location.href)).toString();
+
+      links += `<a target="_blank" href="${abs}">${title}</a><br>`;
+      console.log(`%c${title}`, 'color: #fff; font-weight: bold', abs);
     }
     console.groupEnd();
 

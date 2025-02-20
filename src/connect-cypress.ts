@@ -51,9 +51,12 @@ export const connectCypress = <T>({
     let bootstrap: (component: unknown) => Promise<{ bridge: Bridge }>;
     const testRun = (name: string, callback: Function) => {
       const full = [file, state.currentSuite, name].filter(Boolean).join(' ');
-      state.tests[full] = async (options) => {
-        bootstrap = options.bootstrap;
-        callback();
+      state.tests[full] = {
+        config: state.config,
+        fn: async (options) => {
+          bootstrap = options.bootstrap;
+          callback();
+        },
       };
     };
     const describeRun = (name: string, callback: Function) => {
