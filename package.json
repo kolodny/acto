@@ -12,6 +12,7 @@
     "email": "kolodny@github.com"
   },
   "exports": {
+    "./register": "./lib/register.mjs",
     "./connect-node-test": {
       "types": "./lib/connect-node-test-browser.d.ts",
       "node": "./lib/connect-node-test-node.js",
