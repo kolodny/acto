@@ -149,3 +149,41 @@ Modify your `package.json` to include the following script:
 ```
 
 Ensure that `--import acto/register` comes after `--import tsx` for best results.
+
+## Advantages of Acto: Realistic Testing in Enterprise Environments
+
+Acto offers a unique approach to component testing that sets it apart from other solutions, particularly in enterprise settings. By running tests against a live application instance rather than an isolated fixture server, Acto provides a more authentic testing environment that closely mirrors real-world usage.
+
+### Seamless Integration with Enterprise Platforms
+
+Acto is designed to work harmoniously with managed application platforms commonly used in large tech companies:
+
+- **Authentic Environment Testing**: Tests run against the same instance you use for development (`https://myapp.dev.company.com/`), preserving all platform-specific features.
+
+  - _Other solutions_: Typically run in isolation (e.g., `http://localhost:3000`), missing crucial platform integrations.
+
+- **Preserved Authentication and Service Integration**: Maintains real authentication flows and service connections, eliminating the need for extensive mocking.
+
+  - _Other solutions_: Require mocking of authentication and services, potentially missing real-world integration issues.
+
+- **Flexible Testing Across Environments**:
+  - Supports testing against development, staging, or production environments by simply adjusting the `baseURL`.
+  - Enables detection of environment-specific issues that might be missed in isolated testing setups. For example you can test for a regression that only happens in staging or production.
+  - _Other solutions_: Limited to local or mocked environments, missing deployment-specific nuances.
+
+### Simplified Integration and Reduced Complexity
+
+- **Leverages Existing Infrastructure**:
+
+  - Doesn't require a new build/bundle step.
+    - You can add any webpack plugin without worrying about breaking the component tests.
+    - Lowers the barrier to entry for implementing comprehensive component testing.
+  - Piggybacks on existing E2E testing stages in CI/CD pipelines.
+    - _Other solutions_: Often require separate build steps and configurations for component testing.
+
+### Enhanced Realism and Coverage
+
+- **Comprehensive Integration Testing**: Tests components within the full application stack, including backend services and platform features.
+- **True-to-Production Behavior**: Catches issues that might only appear in a fully integrated environment, improving test reliability and coverage.
+
+By addressing these key areas, Acto provides a testing solution particularly well-suited for enterprise-grade applications. It overcomes the limitations of isolated component testing approaches, offering a more realistic and comprehensive testing strategy that aligns closely with actual application behavior across various environments.
